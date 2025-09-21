@@ -3,4 +3,5 @@ from .views import *
 
 urlpatterns = [
     path('customer', CustomerView.as_view()),
+    path('material', MaterialView.as_view()),
 ]

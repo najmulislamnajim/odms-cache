@@ -38,3 +38,35 @@ class CustomerView(APIView):
             {"success": True, "message": f"{len(rows)} Data cached successfully."},
             status=status.HTTP_200_OK
         )
+        
+class MaterialView(APIView):
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute(sql.MATERIAL_SQL)
+            rows = cursor.fetchall()
+        
+        for row in rows:
+            data = {
+                "id": row[0],
+                "mtnr": row[1],
+                "plant": row[2],
+                "sales_org": row[3],
+                "dis_channel": row[4],
+                "material_name": row[5],
+                "producer_company": row[6],
+                "team1": row[7],
+                "pack_size": row[8],
+                "unit_tp": float(row[9]),
+                "unit_vat": float(row[10]),
+                "mrp": float(row[11]),
+                "brand_name": row[12],
+                "brand_description": row[13],
+                "active": row[14]
+            }
+            key = f"material-{row[1]}"
+            json_data = json.dumps(data)
+            redis.set(key, json_data)
+        return Response(
+            {"success": True, "message": f"{len(rows)} Data cached successfully."},
+            status=status.HTTP_200_OK
+        )

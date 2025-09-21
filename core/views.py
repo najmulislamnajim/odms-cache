@@ -93,4 +93,25 @@ class UsersListView(APIView):
             {"success": True, "message": f"{len(rows)} Data cached successfully."},
             status=status.HTTP_200_OK
         )
+        
+class RouteView(APIView):
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute(sql.ROUTE_SQL)
+            rows = cursor.fetchall()
             
+        for row in rows:
+            data = {
+                "id": row[0],
+                "depot_code": row[1],
+                "depot_name": row[2],
+                "route_code": row[3],
+                "route_name": row[4],
+            }
+            key = f"route-{row[0]}"
+            json_data = json.dumps(data)
+            redis.set(key, json_data)
+        return Response(
+            {"success": True, "message": f"{len(rows)} Data cached successfully."},
+            status=status.HTTP_200_OK
+        )    

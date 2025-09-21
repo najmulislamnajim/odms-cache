@@ -5,4 +5,5 @@ urlpatterns = [
     path('customer', CustomerView.as_view()),
     path('material', MaterialView.as_view()),
     path('da', UsersListView.as_view()),
+    path('route', RouteView.as_view()),
 ]

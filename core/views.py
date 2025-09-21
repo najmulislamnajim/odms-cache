@@ -30,6 +30,7 @@ class CustomerView(APIView):
                 "drug_reg_no": row[13],
                 "customer_group": row[14],
                 "trans_p_zone": row[15],
+                "previous_due": float(row[19]) if row[19] else 0.0,
             }
             key = f"customer-{row[0]}"
             json_data = json.dumps(data)

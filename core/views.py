@@ -70,3 +70,27 @@ class MaterialView(APIView):
             {"success": True, "message": f"{len(rows)} Data cached successfully."},
             status=status.HTTP_200_OK
         )
+        
+class UsersListView(APIView):
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute(sql.USERS_SQL)
+            rows = cursor.fetchall()
+            
+        for row in rows:
+            data = {
+                "da_code": row[0],
+                "full_name": row[1],
+                "mobile_number": row[2],
+                "user_type": row[3],
+                "status": row[7],
+                "id": row[8]
+            }
+            key = f"user-{row[0]}"
+            json_data = json.dumps(data)
+            redis.set(key, json_data)
+        return Response(
+            {"success": True, "message": f"{len(rows)} Data cached successfully."},
+            status=status.HTTP_200_OK
+        )
+            

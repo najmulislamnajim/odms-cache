@@ -1,0 +1,40 @@
+import json, redis
+from django.db import connection
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from . import sql
+
+# Connect Redis
+try:
+    redis_pool = redis.ConnectionPool(host='localhost', port=6379, db=0)
+    redis = redis.Redis(connection_pool=redis_pool)
+except Exception as e:
+    print(e)
+
+# Create your views here.
+class CustomerView(APIView):
+    def get(self, request):
+        with connection.cursor() as cursor:
+            cursor.execute(sql.CUSTOMER_SQL)
+            rows = cursor.fetchall()
+        
+        for row in rows:
+            data = {
+                "partner": row[0],
+                "name": " ".join([row[1], row[2]]),
+                "contact_person": row[3] or "",
+                "address": " ".join(row[4:11]),
+                "mobile_no": row[11],
+                "email": row[12],
+                "drug_reg_no": row[13],
+                "customer_group": row[14],
+                "trans_p_zone": row[15],
+            }
+            key = f"customer-{row[0]}"
+            json_data = json.dumps(data)
+            redis.set(key, json_data)
+        return Response(
+            {"success": True, "message": f"{len(rows)} Data cached successfully."},
+            status=status.HTTP_200_OK
+        )
